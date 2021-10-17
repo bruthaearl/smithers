@@ -1,1 +1,11 @@
+# ignore the synthesized audio files
 sounds/synthesized/*
+
+# latex files
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.synctex.gz

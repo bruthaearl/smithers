@@ -7,10 +7,11 @@
 \usepackage{url}
 \usepackage{listings}
 \lstset{basicstyle=\scriptsize\ttfamily, keywordstyle=\bfseries}
+\newcommand{\code}[1]{\texttt{#1}}
 
 \begin{document}
 \title{Original Method: \\
-    Smithers: Wake Word Exploration for Resource-Constrained Devices}
+    Smithers: A Wake Word Recognition Model for Resource-Constrained Devices}
 \author{ Jacob Jones \\
     ECE 551, Problems \\
     The University of New Mexico \\
@@ -21,90 +22,85 @@
 
 \begin{abstract}
 
-    Many consumer electronic devices contain digital "smart assistants"
-    that listen and respond to voice commands.
-    Many of the devices that run these assistants are constrained memory and battery limitations
-    and are not capable running word recognition models at all times.
-    These devices rely on trigger words, or "wake words", as the first step
-    in the word recognition pipeline.
-    This project will explore wake words with a focus on their application
-    on devices with limited computational resources.
+    Many modern consumer electronic devices implement digital ``smart assistants''
+    that recognize and respond to voice commands.
+    Many of the smart devices that run these assistants are constrained by memory and battery limitations
+    and are not capable of always running a complete speech recognition model.
+    These smart devices rely on smaller, less computationally costly,
+    models trained on key ``wake words''
+    as the first step in the speech recognition pipeline.
+    This project designs a convolutional neural net for wake word recognition - ``Smithers'' -
+    and explores techniques for reducing its computational costs.
 
 \end{abstract}
 \begin{IEEEkeywords}
-    machine learning; convolutional neural nets; wake words; speech recognition; embedded computing
+    machine learning; convolutional neural nets; wake words; speech recognition;
 \end{IEEEkeywords}
 \IEEEpeerreviewmaketitle
 
 \section{Background}
 
-\subsection{Motivation}
+``Smart assistants'' such as Alexa, Siri, and Google Assistant are commonly found
+in many modern consumer electronics such as smartphones, smart watches, and smart speakers.
+A common fear is that these devices are always listening, spying on everything that we say.
+This fear is not unfounded - these devices are indeed always listening to our conversations!
+More often than not, however, our conversations fall on untrained digital ears.
 
-Digital "smart" assistants such as Alexa, Siri, and Google Assistant are commonly found
-in smartphones, smart watches, and smart speakers.
-A common fear is that these devices are always spying on us, listening to everything we say.
-These devices are indeed always listening,
-but more often than not,
-these devices only care about a few key words.
-
-Many of these devices do not have the resources to interpret an entire dictionary.
-For low-power edge devices such as smart watches and smart speakers,
-full-dictionary word recognition is too computationally costly.
-Resource constrains, such as memory and battery limitations,
-restrict the capabilities of the always-on word recognition models. 
-Typically, these devices are trained to recognize only a select few words -
-"Hey Alexa", "Hey Siri", and "Hey Google", for the big three smart assistants.
-These "wake words" activate the assistant 
-and the commands that follow are either processed by a more advanced model
+Speech recognition is a computationally-costly process.
+Resource constraints, such as memory and battery limitations,
+restrict complete speech recognition models to be active only when necessary.
+Smart devices typically employ much smaller and cost-friendly models
+that are trained to recognize only select key ``wake words'' - 
+``Hey Alexa'', ``Hey Siri'', and ``Hey Google'', for commonly-heard examples.
+Once the wake words are recognized, the commands that follow
+are either processed by a more advanced model
 or are sent to the cloud for further processing.
 
+\subsection{Motivation}
+
 My technical interests lie where hardware and software intersect.
-Embedded devices with specifically-designed hardware and software
+Embedded devices with specialized hardware that run specialized software
 fit perfectly within this niche.
 Many embedded devices are resource-constrained and must make sacrifices
 to optimize the limited available power and computational resources.
-I have bought into the Google Home ecosystem and the Google Assistant 
-has proven to be incredibly handy around the home.
+I've bought in to the Google Home ecosystem and Google Assistant 
+has proven to be incredibly handy around the house.
 It naturally follows that I am interested in researching these smart home devices
 and the wake words processes that they implement.
 
 Every smart assistant needs a wake word that's both memorable and relatively uncommon.
-Siri (Apple), Alexa (Amazon), Bixby (Samsung), and Cortana (Microsoft)
-are all given names to personify the smart assistant.
-For this project, I will be developing the beginnings of a new digital assistant
-in the form of wake word recognition.
-My smart assistant will be named "Smithers".
-Smithers is the faithful assistant to the curmudgeonly Mr. Burns 
-in one of my favorite television shows, the Simpsons.
-I believe this is an excellent (and fun to say) name for a digital assistant.
-
-\begin{figure}[htbp]
-    \centerline{\includegraphics[width=0.35\textwidth]{figs/smithers.jpg}}
-    \caption{Smithers (right) and Mr. Burns (left)}
-    \label{fig:1}
-\end{figure}
+Apple's Siri, Amazon's Alexa, Samsung's Bixby, and Microsoft's Cortana
+were all given names to help humanize their digital assistants.
+For this project, I will be developing the beginnings of a new digital assistant.
+My smart assistant will be named ``Smithers'',
+and this project will teach a model to recognize its name.
+In one of my favorite television show, The Simpsons, 
+Waylon Smithers is the faithful, always-there, assistant to the curmudgeonly Mr. Burns 
+I believe that ``Smithers'' is an excellent (and fun to say) name for a digital assistant.
 
 \subsection{Expected Contribution}
 The goal of this project is to create a machine learning model capable of wake word recognition.
 This model could be used as a jumping-off point for exploring wake word recognition
-or serve as a foundation for more advanced projects
+or serve as a foundation for more advanced projects.
 This project explains key concepts in wake word recognition
-and explores fundamental components such as mel-frequency cepstral coefficients and convolutional neural nets.
+and explores fundamental machine learning components 
+such as mel-frequency cepstral coefficients and convolutional neural nets.
 This project also explores how preexisting models handle wake word recognition,
 comparing methods and processes and drawing inspiration from these ideas.
 
 \subsection{Competing Methods}
 Three of the big tech companies - Amazon, Apple, and Google - 
 develop competing smart assistants.
-All three of these companies have produced papers concerning speech recognition.
-All three of these companies smart assistants utilize convolutional neural nets (CNNs)
+All three of these companies have produced papers concerning speech and wake word recognition.
+The two common findings between these papers is that
+all three of these smart assistants utilize convolutional neural nets (CNNs)
 and all three of these smart assistants process the audio with a mel filterbank.
 Fundamental concepts from these papers will be applied to this project.
 
 In \textit{Small-footprint Keyword Spotting Using Deep Neural Nets},
 researchers at Google discuss a computationally cost-effective neural net used to detect key words.
-This paper does not directly discuss wake word detection
-but describes the methods use to process incoming audio.
+This paper does not explicitly discuss wake word detection
+but describes the methods used to process audio for speech recognition.
 The features used in this CNN are mel filterbank energies of the audio signal.
 These researchers achieved the best results
 by applying RelU activation functions for the CNN layers \cite{smallfoot}.
@@ -112,15 +108,15 @@ by applying RelU activation functions for the CNN layers \cite{smallfoot}.
 In \textit{Accurate Detection of Wake Word Start and End Using a CNN}, 
 Amazon researchers also suggest using mel filterbank to process the incoming audio
 for a non-linear frequency response similar to how humans perceive sound \cite{wordstart}.
-The Amazon CNN is a two-part model that both detects wake words
-and detects the start point and end points of these words.
+The Amazon CNN is a two-part model that detects both wake words
+and the start point and end points of these words.
 
 Perhaps the research most relevant to this project come from Apple engineers working on Siri.
 The focus on \textit{Efficient Voice Trigger Detection for Low Resource Hardware}
 is on CNNs running on embedded hardware and aligns well with the goals of this project \cite{Efficient}.
-These researchers suggest quantizing 32-bit floating-point numbers 
+These researchers suggest quantizing floating-point numbers 
 within the mel filterbank energy calculations to 8-bit fixed-point integers. 
-Fixed-point math is less computationally-intensive than floating-point math
+Fixed-point math is less computationally intensive than floating-point math
 and these Apple researchers determined the decrease in accuracy is a worthy tradeoff
 for an increase in performance.
 These researchers also suggest using sigmoid activation 
@@ -133,7 +129,7 @@ using a convolutional neural net trained on mel frequency energies.
 Smithers, however, is a much simpler model.
 More technical details will be revealed in Section \ref{sec:method}, \textit{Method}.
 
-Smithers is a binary classifier - either it detected "Hey Smithers" or it didn't.
+Smithers is a binary classifier - either it detected ``Hey Smithers'' or it didn't.
 This is the same route Amazon took with their Alexa CNN \cite{wordstart}.
 The Google Assistant and Siri models are both multiclass classifiers that
 detect the individual phonemes that make up the incoming words \cite{smallfoot}\cite{Efficient}.
@@ -150,13 +146,13 @@ Siri predicts on 19 consecutive frames while Google Assistant predicts on 40 con
 
 \section{Method} \label{sec:method}
 
-Smithers is a wake word detector that listens for the phrase "Hey Smithers"
-Smithers detects wake word through inference by a convolutional neural net (CNN).
+Smithers is a wake word detector that listens for the phrase ``Hey Smithers''
+through inference by a convolutional neural net (CNN).
 Like all CNN's, Smithers requires a well-constructed data set
 with quantifiable and properly-labeled features.
 This section details the methodology and processes
 behind the Smithers CNN training and implementation.
-Figure \ref{fig:flow} shows an flowchart of these processes.
+Figure \ref{fig:flow} shows a flowchart of these processes.
 
 \begin{figure}[htbp]
     \centerline{\includegraphics[width=0.5\textwidth]{figs/flow.png}}
@@ -164,46 +160,45 @@ Figure \ref{fig:flow} shows an flowchart of these processes.
     \label{fig:flow}
 \end{figure}
 
-\subsection{Wake word selection}
+\subsection{Wake Word Selection}
 As noted earlier, the wake word was chosen
-as an allusion to a personal assistant in the television show "The Simpsons".
-The first iteration of this project used the wake word "Smithers".
+as an allusion to a personal assistant in the television show ``The Simpsons''.
+The first iteration of this project used the wake word ``Smithers''.
 In independent testing, this first iteration exhibited a high rate of false positives. 
-This model triggered off the sounds "smith" and "ers",
+This model triggered off the sounds ``smith'' and ``ers'',
 sounds commonly uttered in everyday conversation.
 For wake word detectors, Tsai et. al. suggest using a wake word
 with at least three syllables \cite{syllables}. 
-Switching the wake words from "Smithers" to "Hey Smithers"
+Switching the wake words from ``Smithers'' to ``Hey Smithers''
 greatly decreased the number of false positives.
 Increasing the number of phonemes, or distinguishable sounds, greatly helped the model 
 correctly recognize the wake word phrase.
 
 \subsection{Code}
-Smithers is built in Python and uses TensorFlow and Keras as the machine learning frameworks.
-Smithers also uses the python\_speech\_features library for feature extraction
+Smithers is built in Python and uses the TensorFlow and Keras machine learning frameworks.
+Smithers also uses the \code{python\_speech\_features} library for feature extraction
 and TensorFlow Lite for model packaging and deployment.
 Several selected code excerpts can be found in the Appendix.
 
 Portions of the code were adapted from Shawn Hymel's \textit{TensorFlow Lite Speech Recognition Demo}
 and Chengwei Zhang's instructional GitHub repository \cite{hymel} \cite{tony}.
+The full code for this project can be found in my GitHub repository \cite{jake}.
 
 \subsection{Dataset} \label{sec:dataset}
-The Smithers dataset was synthesized rather than naturally recorded.
+The Smithers dataset was synthesized rather than manually recorded.
 This is because it is much quicker to artificially create a large set of audio clips
-rather than collect them manually.
+rather than record them manually.
 The ingredients for this synthesized dataset were 
-36 manually-recorded positive examples of the wake words "hey Smithers",
+36 manually-recorded positive examples of the wake words ``hey Smithers'',
 130 manually-recorded negative examples from randomly chosen words,
 130 negative examples drawn from the Google Speech Commands dataset,
 and 200 samples of background noise drawn from the Harvard ESC-50 dataset.
 
-The positive examples were recorded by repeating the wake phrase "Hey Smithers"
-in different inflections and speaking volume
-and cutting the examples into individual tracks.
+The positive examples were recorded by repeating the wake phrase ``Hey Smithers''
+in different inflections and speaking volume.
 The manually-recorded negative examples were recorded 
-by reading words from a online random paragraph generator
-and again cutting the words into individual tracks.
-The Google Speech Commands dataset contains common words such as "stop", "left", and "seven" \cite{aiblog}.
+by reading words from a online random paragraph generator.
+The Google Speech Commands dataset contains common words such as ``stop'', ``left'', and ``seven'' \cite{aiblog}.
 The ESC-50 dataset contains background noise field recordings
 from sources such as wind, rain, and running water \cite{noise}.
 
@@ -217,10 +212,8 @@ To synthesize the dataset, a simple routine was constructed. The pseudocode is a
     \item Overlay the positive example onto one-second of silence at the random start point and save
     \item Overlay the negative example onto one-second of silence at the random start point and save
 \end{enumerate}
-This routine is repeated 5,000 times. 
-This processes creates 5,000 positive noise-free examples,
-5,000 positive noisy examples,
-5,000 negative noise-free examples,
+This routine is repeated 5,000 times and creates 5,000 positive noise-free examples,
+5,000 positive noisy examples, 5,000 negative noise-free examples,
 and 5,000 negative noisy examples, building a 20,000 examples dataset.
 These examples are all exactly one-second long
 and the command samples all start at a random point within the one-second window.
@@ -229,28 +222,26 @@ Appendix \ref{appendix:synthesis} shows the code for this routine.
 
 The selected categories of noise field recordings - running water, wind, and rain - 
 were chosen because of their similarity to both 
-environmental noise indicative of the real world and high-frequency white noise.
-I believe that introducing these noise sources will help model to learn to reject
+environmental noise indicative of the real world and to high-frequency white noise.
+I believe that introducing these noise sources will help the model to learn to reject
 both common household noise and other common high-frequency noise sources,
-such as electrical noise.
+such as refrigerator hum or common electrical noise.
 
 The mel-frequency cepstral coefficients are then calculated for each example in the dataset.
 In addition, labels are assigned for each example - 
-$1$ for the positive examples and $0$ for the negative examples.
-Section \ref{sec:mfcc}, \textit{Mel-frequency cepstral coefficients},
-discusses these features and their extraction.
+\code{1} for the positive examples and \code{0} for the negative examples.
+Section \ref{sec:mfcc}, \textit{Mel-Frequency Cepstral Coefficients},
+discusses these features.
 
-After the features are extracted, the dataset is shuffled 
+After the features are calculated, the dataset is shuffled 
 and split into a training set, a validation set, and a test set at a ratio of 80:10:10. 
 That is, the training set consists of 16,000 examples and the validation and test sets 
 each consist of 2,000 examples.
 These sets are then used for the CNN training, validation, and evaluation.
 
-
-\subsection{Mel-frequency cepstral coefficients} \label{sec:mfcc}
-The features that the Smithers model trains and infers upon 
+\subsection{Mel-frequency Cepstral Coefficients} \label{sec:mfcc}
+The features that Smithers trains and infers upon 
 are an audio signal's mel-frequency cepstral coefficients (MFCCs).
-These MFCCs are set of metrics that describe a non-linear transformation of the signal's Fourier transform.
 MFCCs were chosen as the model's trainable feature because of their accurate representation
 of a word's individual phonemes \cite{lyons}.
 Whereas a raw spectrogram shows the amplitudes of every one of signal's constituent frequencies,
@@ -259,18 +250,18 @@ This process distills an audio signal into a minimal set of representative data 
 effectively highlighting what's important and stripping away what's not.
 
 To calculate the MFCCs, a signal is first windowed into short segments
-and the Fast Fourier transforms (FFTs) are taken on each window.
+and a Fast Fourier transform (FFTs) is taken on each window.
 For each window, the transform is filtered by a mel filterbank,
 the logs of power of the mel frequencies are calculated,
 and the discrete cosine transform of the logs are then taken.
 The MFCCs are the resulting amplitudes of the transformed mel frequencies for each window.
-This process is automated by the \textit{python\_speech\_features} Python library.
+This process is automated by the \code{python\_speech\_features} Python library.
 
 Figure \ref{fig:filterbank} shows the mel filterbank \cite{lyons}.
 The key idea behind this filterbank is that the human ear does not have a linear frequency response.
 Humans are better at perceiving differences between lower frequencies
 than differences between higher frequencies.
-The mel filterbank emphasizes this logarithmic-like response and helps a model "hear" as a human would hear.
+The mel filterbank emphasizes this logarithmic-like response and helps a model ``hear'' as a human would hear.
 
 \begin{figure}[htbp]
     \centerline{\includegraphics[width=0.5\textwidth]{figs/filterbank.png}}
@@ -284,14 +275,14 @@ Coefficients above number 13 are not typically used in speech recognition models
 such as in Apple's digital assistant Siri,
 because humans typically do not have the ability 
 to speak or hear at these high frequencies (roughly above 16kHz) \cite{Efficient}.
-The Smithers model follows suit and uses the first 13 MFC coefficients as the trainable features.
+The Smithers model follows this hint and uses the first 13 MFC coefficients as the model's trainable features.
 
-For the Smithers model, the audio clips were first downsampled to a 10kHz bit rate.
-The MFCCs were then calculated using the \textit{mfcc} function 
-in the \textit{python\_speech\_features} library.
-This function accepts a number of input parameters including the window size and number of coefficients.
-For Smithers, the audio clips were segmented into 25ms frames and the first 13 coefficients were calculated.
-One-second audio clips divide into 40 25ms frames and the resulting calculations create a 13x40 array for each clip.
+For Smithers, the audio clips were first downsampled to a 10kHz bit rate.
+The MFCCs were then calculated using the \code{mfcc} function 
+from the \code{python\_speech\_features} library.
+This function accepts several input parameters, including the window size and number of coefficients.
+For Smithers, the audio clips were segmented into 25ms frames, and the first 13 coefficients were calculated.
+One-second audio clips divide into forty 25ms frames and the resulting calculations create a 13x40 array for each clip.
 Following in the footsteps of Apple,
 these MFCCs are then casted from 64-bit floating point numbers 
 to 8-bit signed integers to reduce the model size \cite{Efficient}.
@@ -300,9 +291,8 @@ This is especially important for models running on resource-constrained hardware
 One benefit of the MFCC process is that each audio example is essentially transformed into a 13x40 pixel image.
 Convolutional neural nets excel at this sort of image recognition problem. 
 Figure \ref{fig:pos} shows a visualization of a positive example 
-and Figure \ref{fig:neg} show a visualization of a negative example.
+and Figure \ref{fig:neg} shows a visualization of a negative example.
 Appendix \ref{appendix:mfcc} shows the code used to calculate the MFCCs.
-
 
 \begin{figure}[htbp]
     \centerline{\includegraphics[width=0.5\textwidth]{figs/positive.png}}
@@ -316,27 +306,27 @@ Appendix \ref{appendix:mfcc} shows the code used to calculate the MFCCs.
     \label{fig:neg}
 \end{figure}
 
-\subsection{Convolutional neural net}
+\subsection{Convolutional Neural Net}
 
-A standard image recognition convolutional neural net was chosen to label the "images"
+A standard image recognition convolutional neural net was chosen to label the ``images''
 created by the MFCC calculations \cite{hymel}.
 This neural net consists of a series of convolution and max-pooling layers
 followed by a few dense, flatten, and dropout layers.
 As suggested by Google, the convolution layers utilize RelU activation,
 and as suggested by Apple, the fully-connected output utilizes sigmoid activation
 for an output in the $[0,1]$ range \cite{smallfoot} \cite{Efficient}.
-Through experimentation, I was able to reduce the number of number of trainable parameters
-by reducing the number of filters used in the convolution layers
-without any adverse effect on model performance.
+
+Through experimentation, I was able to reduce the number of filters 
+used in the convolution layers without adversely affecting model performance.
+Reducing the number of trainable parameters helps reduce computational costs.
 Figure \ref{fig:cnn} shows the Smithers model summary
-and \ref{appendix:model} shows the code used to construct the model.
+and Appendix \ref{appendix:model} shows the code used to construct the model.
 
 \begin{figure}[htbp]
     \centerline{\includegraphics[width=0.5\textwidth]{figs/cnn.png}}
     \caption{Smithers CNN model summary}
     \label{fig:cnn}
 \end{figure}
-
 
 \subsection{Model Training, Validation, and Testing}
 As mentioned in Section \ref{sec:dataset}, \textit{Dataset},
@@ -367,27 +357,28 @@ show the model training and validation accuracy and loss at each epoch.
 The model's test loss and accuracy were determined
 by evaluating the model's performance on the 2,000-example test data subset
 that was isolated from the model training and validation routines.
-Calling the built-in Keras method Model.evaluate(),
-the test lost was found to be $1.47\%$ and the test accuracy was found to be $99.6\%$
+Calling the built-in Keras method \code{Model.evaluate()},
+the test lost was found to be \code{1.47\%} and the test accuracy was found to be \code{99.6\%}
 when evaluated with the test data subset.
+These are promising results!
 
 \subsection{Model Deployment}
 The model was saved as a TensorFlow Lite model for export to other devices.
 TensorFlow Lite is a stripped-down version of the TensorFlow framework
-used for "on-device inference" \cite{tensorflowlite}.
-TensorFlow Lite is used on resource-constrained devices that down have the computing power
+used for ``on-device inference'' \cite{tensorflowlite}.
+TensorFlow Lite is used on resource-constrained devices that do not have the computing power
 to run the full version of TensorFlow.
 A TensorFlow Lite model is a single binary file that contains all the information needed
 to run the model on any device.
-This makes the model easily shareable - the Smithers TensorFlow Lite model, in fact, 
+This makes the model easily shareable - the Smithers TensorFlow Lite model, for example, 
 is only 46.5kB in size.
 
 For real-time use of the Smithers model, a Python script was written
 to continuously make predictions on one-second chunks of incoming audio.
-This script uses the \textit{sounddevice} Python library to construct a
+This script uses the \code{sounddevice} Python library to construct a
 0.5-second long audio buffer and passes it to a callback function, twice per second.
 This callback function builds a sliding window out of the 0.5-second audio buffer
-to construct one-second long clip.
+to construct a one-second long clip.
 The MFCCs of this clip are calculated in the same way as in training
 and the coefficients are evaluated by the TensorFlow Lite model.
 
@@ -396,19 +387,19 @@ It was eventually determined that the format of audio used in the training proce
 did not match the audio format of the real-time buffers.
 This discrepancy was causing the MFCC calculations to differ between the two processes.
 During the training process, the audio is stored as an array 16-bit integers.
-For the real-time audio buffer, the sounddevice library stores the audio
+For the real-time audio buffer, the \code{sounddevice} library stores the audio
 as floating-point numbers in the $[-1,+1]$ range.
-The fix turned out to be easy - the sounddevice InputStream method
+The fix turned out to be easy - the \code{sounddevice InputStream} method
 accepts an optional parameter to specify the data type.
-Appendix \ref{appendix:realtime} shows the sounddevice InputStream
+Appendix \ref{appendix:realtime} shows the \code{sounddevice InputStream}
 and callback code used for the Smithers real-time implementation.
 
 
 \section{Discussion of Results}
 
-The Smithers model does an excellent job recognizing when I say "Hey Smithers".
+The Smithers model does an excellent job recognizing when I say ``Hey Smithers''.
 I do not have any data on exactly \textit{how} well the model works
-but, more often than not, Smithers correctly detects whenever I say the wake words.
+but Smithers typically detects whenever I say the wake words.
 I have not tested the model extensively, however, in a variety of environments
 with a variety of different speakers.
 It's likely the model won't work as well given different environmental conditions
@@ -417,21 +408,21 @@ This model, however, serves well as a proof-of-concept and as a an excellent fou
 for further improvements.
 
 The single greatest improvement made to this model was using a larger dataset.
-Initially, only 400 positive and negative examples each were used.
+Initially, only 400 positive examples and 400 negative examples were used to train the model.
 Increasing this number to 10,000 examples each significantly improved model validation.
-Additionally, changing the wake word from "Smithers" to "Hey Smithers" increased 
+Additionally, changing the wake word from ``Smithers'' to ``Hey Smithers'' increased 
 the model's accuracy.
 I imagine the model can be further improved by training with more examples
 from many different speakers and with a larger variety of environmental noise recordings.
 
 Several optimizations were made to increase performance for resource-constrained devices.
 The audio used in training and inference was downsampled from native the default 44.1kHz to 10kHz,
-greatly decreasing the size of the data to be processed.
+significantly decreasing the size of the data to be processed.
 As suggested by Apple, the MFCCs were quantized from floating-point numbers to integers,
 further decreasing the computational cost.
 I was also able to reduce computational cost by reducing the number of filters
 used in the convolutional neural net.
-For Siri, Apple also quantized the CNN values between layers for even greater performance improvements.
+Apple also quantized the CNN values between layers for even greater performance improvements.
 This was not performed in this project but, according to Apple, quantizing the MFCCs and CNN values
 decreased computational cost by over $75\%$ \cite{Efficient}.
 
@@ -439,11 +430,11 @@ I am interested in seeing how much meat I can strip off these bones -
 how small can I make this model without severely sacrificing performance?
 Sadeghi et al. have shown it is possible to correctly recognize words 
 by using only the first 5 MFCCs \cite{optimalmfcc}.
-I am interested in the performance impacts from reducing the number of MFCCs,
+I am interested in exploring the performance impacts from reducing the number of MFCCs,
 increasing the MFCC window length, lowering the sample rate of the audio streams,
 and simplifying the CNN hyperparameters.
 
-I found Python and the Keras and TensorFlow frameworks 
+I found that Python, Keras, and the TensorFlow framework
 were incredibly intuitive for developing convolutional neural nets.
 My prior efforts in building machine learning models all used MATLAB 
 and Python has proven to be a much more enjoyable experience.
@@ -451,8 +442,36 @@ Best of all, Python is free and open source - this open access
 makes it easy for anyone to get started exploring machine learning
 without having to worry about paying for toolboxes or licenses.
 
-
 \section{Conclusions}
+
+Speech recognition is a computationally costly process.
+Many smart devices have memory and battery-imposed constraints
+and are unable to always run complete speech recognition models.
+These devices rely on smaller models that listen for only specific ``wake words''.
+Once the wake words are detected, the smart device kicks on
+the complete speech recognition model.
+
+Smithers is a convolutional neural net trained to recognize the wake words ``Hey Smithers''.
+Smithers uses a synthesized dataset and trains on features extracted from 
+the mel-frequency cepstral coefficients.
+Mel-frequency cepstral coefficients are the amplitudes of key frequencies
+after a set of transformations.
+These coefficients distill an audio signal into a reduced data set
+that emphasizes the logarithmic nature of human speech.
+
+Smithers implements several techniques to help reduce the computational costs
+of running a speech recognition model.
+These techniques include limiting the number of mel-frequency cepstral coefficients,
+downsampling the audio clips, quantizing data points,
+and reducing the convolutional neural net parameters.
+
+Smithers is saved as a TensorFlow Lite model and can be implemented on any device
+that supports the TensorFlow Lite framework.
+An example implementation script was written in Python
+that uses Smithers to make predictions on real-time audio.
+Smithers works well for my particular use case but may not work in all environments
+or with all speakers.
+This project, however, serves as an excellent starting point for further research into wake words.
 
 \bibliographystyle{IEEEtran}
 \bibliography{refs}
@@ -462,7 +481,7 @@ without having to worry about paying for toolboxes or licenses.
 \appendix[Selected Code Excerpts]
 \subsection{Data Synthesis Routine}\label{appendix:synthesis}
 This routine synthesizes a data set from positive examples, negative examples, and noise clips.
-This routine uses \textit{AudioSegment} from the \textit{pydub} Python library.
+This routine uses \code{AudioSegment} from the \code{pydub} Python library.
 
 \begin{lstlisting}[language=Python]
 def synthesize_sounds(num_sounds):  
@@ -531,7 +550,7 @@ def calc_mfcc(path):
     return mfcc.transpose()
 \end{lstlisting}
 
-\subsection{Keras Model Building}\label{appendix:model}
+\subsection{Keras Model Building} \label{appendix:model}
 Keras was used to build the Smithers CNN model.
 
 \begin{lstlisting}[language=Python]
@@ -553,6 +572,8 @@ model.summary()
 \end{lstlisting}
 
 \subsection{Real Time Prediction} \label{appendix:realtime}
+This excerpt is from an example script that runs the Smithers model.
+The Python library \code{sounddevice} is used to grab the audio.
 \begin{lstlisting}[language=Python]
 # sounddevice callback
 def sd_callback(rec, frames, time, status):
