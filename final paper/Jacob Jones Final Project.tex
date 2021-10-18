@@ -74,8 +74,8 @@ were all given names to help humanize their digital assistants.
 For this project, I will be developing the beginnings of a new digital assistant.
 My smart assistant will be named ``Smithers'',
 and this project will teach a model to recognize its name.
-In one of my favorite television show, The Simpsons, 
-Waylon Smithers is the faithful, always-there, assistant to the curmudgeonly Mr. Burns 
+In one of my favorite television show, \textit{The Simpsons}, 
+Waylon Smithers is the faithful, always-there, assistant to the curmudgeonly Mr. Burns. 
 I believe that ``Smithers'' is an excellent (and fun to say) name for a digital assistant.
 
 \subsection{Expected Contribution}
@@ -86,7 +86,7 @@ This project explains key concepts in wake word recognition
 and explores fundamental machine learning components 
 such as mel-frequency cepstral coefficients and convolutional neural nets.
 This project also explores how preexisting models handle wake word recognition,
-comparing methods and processes and drawing inspiration from these ideas.
+comparing proven methods and processes and drawing inspiration from these ideas.
 
 \subsection{Competing Methods}
 Three of the big tech companies - Amazon, Apple, and Google - 
@@ -98,12 +98,12 @@ and all three of these smart assistants process the audio with a mel filterbank.
 Fundamental concepts from these papers will be applied to this project.
 
 In \textit{Small-footprint Keyword Spotting Using Deep Neural Nets},
-researchers at Google discuss a computationally cost-effective neural net used to detect key words.
+researchers at Google discuss a computationally cost-effective neural net used to detect key words \cite{smallfoot}.
 This paper does not explicitly discuss wake word detection
 but describes the methods used to process audio for speech recognition.
 The features used in this CNN are mel filterbank energies of the audio signal.
 These researchers achieved the best results
-by applying RelU activation functions for the CNN layers \cite{smallfoot}.
+by applying RelU activation functions for the CNN layers.
 
 In \textit{Accurate Detection of Wake Word Start and End Using a CNN}, 
 Amazon researchers also suggest using mel filterbank to process the incoming audio
@@ -129,9 +129,9 @@ using a convolutional neural net trained on mel frequency energies.
 Smithers, however, is a much simpler model.
 More technical details will be revealed in Section \ref{sec:method}, \textit{Method}.
 
-Smithers is a binary classifier - either it detected ``Hey Smithers'' or it didn't.
+Smithers is a binary classifier - it either detects ``Hey Smithers'' or it doesn't.
 This is the same route Amazon took with their Alexa CNN \cite{wordstart}.
-The Google Assistant and Siri models are both multiclass classifiers that
+The Google Assistant and Siri models, however, are both multiclass classifiers that
 detect the individual phonemes that make up the incoming words \cite{smallfoot}\cite{Efficient}.
 A prediction is made from the combined probabilities of the individual phonemes.
 
@@ -154,11 +154,11 @@ This section details the methodology and processes
 behind the Smithers CNN training and implementation.
 Figure \ref{fig:flow} shows a flowchart of these processes.
 
-\begin{figure}[htbp]
-    \centerline{\includegraphics[width=0.5\textwidth]{figs/flow.png}}
+\begin{figure*}[htbp]
+    \centerline{\includegraphics[width=0.75\textwidth]{figs/flow.png}}
     \caption{Project Flowchart}
     \label{fig:flow}
-\end{figure}
+\end{figure*}
 
 \subsection{Wake Word Selection}
 As noted earlier, the wake word was chosen
@@ -257,7 +257,7 @@ and the discrete cosine transform of the logs are then taken.
 The MFCCs are the resulting amplitudes of the transformed mel frequencies for each window.
 This process is automated by the \code{python\_speech\_features} Python library.
 
-Figure \ref{fig:filterbank} shows the mel filterbank \cite{lyons}.
+Figure \ref{fig:filterbank} shows a 10-filter mel filterbank \cite{lyons}.
 The key idea behind this filterbank is that the human ear does not have a linear frequency response.
 Humans are better at perceiving differences between lower frequencies
 than differences between higher frequencies.
